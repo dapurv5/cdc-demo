@@ -21,6 +21,6 @@ def main(args):
 if __name__ == "__main__":
   parser = argparse.ArgumentParser(description='Specify arguments')
   parser.add_argument('--input',help='path to input file to generate indexable documents from',required=True)
-  parser.add_argument('--output', help='path to the output file which will contain the json documents', required=True)
+  parser.add_argument('--url', help='path to the output file which will contain the json documents', required=False)
   args = parser.parse_args()
   main(args)
