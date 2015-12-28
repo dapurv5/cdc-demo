@@ -13,6 +13,28 @@ from elasticsearch import Elasticsearch
 def main(args):
   index_name = 'cdc-demo'
   es = Elasticsearch()
+  
+  # Delete index if already found one
+  try:
+    es.indices.delete(index = index_name)
+  except Exception:
+    pass
+  
+  # Setup fresh index and mapping
+  es.indices.create(index=index_name, body = {
+                        "mappings": {
+                           "book": {
+                             "_all" : {"enabled" : "false"},       
+                             "properties": {
+                                "code": {"type": "string",
+                                         "term_vector": "yes",
+                                         "store": "true"},
+                                "pid" : {"type" : "string"}
+                             }     
+                           }
+                        }
+                     })
+     
   with open(args.input) as input_file:
     for line in input_file:
       json_doc = json.loads(line)
