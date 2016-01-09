@@ -29,7 +29,8 @@ def main(args):
                                 "code": {"type": "string",
                                          "term_vector": "yes",
                                          "store": "true"},
-                                "pid" : {"type" : "string"}
+                                "pid" : {"type" : "string"},
+                                "wordvector": {"type": "float"}
                              }     
                            }
                         }

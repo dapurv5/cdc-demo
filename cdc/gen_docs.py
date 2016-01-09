@@ -6,6 +6,7 @@ import argparse
 import csv
 import sys
 import json
+import numpy as np
 
 
 def main(args):
@@ -25,10 +26,11 @@ def main(args):
         if "DGNS_CD" in field_name and len(row[field_name]) > 0:
           bag_of_words.append(row[field_name])
       docs[pid] = bag_of_words
+      wordvector = np.random.random(size=200)
 
   with open(args.output, 'wb') as output_file:
     for pid, bag_of_words in docs.iteritems():
-      json_doc = {'pid': pid, 'code': " ".join(bag_of_words)}
+      json_doc = {'pid': pid, 'code': " ".join(bag_of_words), "wordvector": list(wordvector)}
       output_file.write(json.dumps(json_doc)+"\n")
 
 if __name__ == "__main__":
