@@ -26,7 +26,7 @@ def main(args):
         if "DGNS_CD" in field_name and len(row[field_name]) > 0:
           bag_of_words.append(row[field_name])
       docs[pid] = bag_of_words
-      wordvector = np.random.random(size=200)
+      wordvector = np.random.random(size=int(args.dim))
 
   with open(args.output, 'wb') as output_file:
     for pid, bag_of_words in docs.iteritems():
@@ -37,5 +37,6 @@ if __name__ == "__main__":
   parser = argparse.ArgumentParser(description='Specify arguments')
   parser.add_argument('--input',help='path to input file to generate indexable documents from',required=True)
   parser.add_argument('--output', help='path to the output file which will contain the json documents', required=True)
+  parser.add_argument('--dim', help='the dimensionality of the word vector representation used for the patient', required=True)
   args = parser.parse_args()
   main(args)

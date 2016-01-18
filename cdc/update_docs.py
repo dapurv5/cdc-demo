@@ -30,7 +30,8 @@ def main(args):
                                          "term_vector": "yes",
                                          "store": "true"},
                                 "pid" : {"type" : "string"},
-                                "wordvector": {"type": "float"}
+                                "wordvector": {"type": "float",
+                                               "store": "true"}
                              }     
                            }
                         }
