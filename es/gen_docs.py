@@ -1,42 +1,51 @@
 #!/usr/bin/env/python
 #
 # author: apurvverma@gatech.edu
+#
+# Reads the claims file and generates json patient data from it
+# 
 
 import argparse
 import csv
-import sys
 import json
-import numpy as np
 
+from common import Patient
+from common import Visit
 
 def main(args):
   with open(args.input) as input_file:
     reader = csv.DictReader(input_file);
-    #list of all documents from patient id -> document for that patient,
-    #each document is a list of diagnostic codes
-    docs = {}
+    patients = {} #map from patient_id -> Patient() object
     
     for row in reader:
       pid = row["DESYNPUF_ID"]
-      bag_of_words = []
-      if pid in docs:
-        bag_of_words = docs[pid]
+      if pid not in patients:
+        patient = Patient()
+        patient.pid = pid
+        patients[pid] = patient
+      patient = patients[pid]
       
+      visit = Visit()
       for field_name in reader.fieldnames:
+        value = row[field_name]
         if "DGNS_CD" in field_name and len(row[field_name]) > 0:
-          bag_of_words.append(row[field_name])
-      docs[pid] = bag_of_words
-      wordvector = np.random.random(size=int(args.dim))
+          visit.add_code(value)
+        elif "CLM_FROM_DT" in field_name and  len(row[field_name]) > 0:
+          visit.admission_date = value
+        elif "CLM_THRU_DT" in field_name and len(row[field_name]) > 0:
+          visit.discharge_date = value           
+      patient.add_visit(visit)
+      patients[pid] = patient
 
   with open(args.output, 'wb') as output_file:
-    for pid, bag_of_words in docs.iteritems():
-      json_doc = {'pid': pid, 'code': " ".join(bag_of_words), "wordvector": list(wordvector)}
-      output_file.write(json.dumps(json_doc)+"\n")
+    for pid, patient in patients.iteritems():
+      output_file.write(json.dumps(patient, default=lambda o: o.__dict__)+"\n")
 
+#python gen_docs.py --input /home/dapurv5/Desktop/Semesters/Semester2/GRA/Data/DE1_0_2008_to_2010_Inpatient_Claims_Sample_2.csv
+#                   --output /mnt/production/cdc/gen_docs/docs.json
 if __name__ == "__main__":
   parser = argparse.ArgumentParser(description='Specify arguments')
   parser.add_argument('--input',help='path to input file to generate indexable documents from',required=True)
   parser.add_argument('--output', help='path to the output file which will contain the json documents', required=True)
-  parser.add_argument('--dim', help='the dimensionality of the word vector representation used for the patient', required=True)
   args = parser.parse_args()
   main(args)

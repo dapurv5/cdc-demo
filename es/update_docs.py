@@ -2,16 +2,27 @@
 #
 # author: apurvverma@gatech.edu
 
+"""
+Simple indexer for indexing json documents in elasticsearch
+
+An example of a simple query is
+
+{
+  "query": {
+    "term": {
+      "codes": "5770"
+    }
+  }
+}
+"""
 
 import argparse
-import csv
-import sys
 import json
 
 from elasticsearch import Elasticsearch
 
 def main(args):
-  index_name = 'cdc-demo'
+  index_name = 'psim'
   es = Elasticsearch()
   
   # Delete index if already found one
@@ -26,11 +37,11 @@ def main(args):
                            "book": {
                              "_all" : {"enabled" : "false"},       
                              "properties": {
-                                "code": {"type": "string",
+                                "codes": {"type": "string",
                                          "term_vector": "yes",
                                          "store": "true"},
                                 "pid" : {"type" : "string"},
-                                "wordvector": {"type": "float",
+                                "embedding": {"type": "float",
                                                "store": "true"}
                              }     
                            }
