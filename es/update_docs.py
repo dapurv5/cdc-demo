@@ -18,6 +18,7 @@ An example of a simple query is
 
 import argparse
 import json
+import numpy as np
 
 from elasticsearch import Elasticsearch
 
@@ -42,7 +43,7 @@ def main(args):
                                          "store": "true"},
                                 "pid" : {"type" : "string"},
                                 "embedding": {"type": "float",
-                                               "store": "true"}
+                                              "store": "true"}
                              }     
                            }
                         }
@@ -51,11 +52,13 @@ def main(args):
   with open(args.input) as input_file:
     for line in input_file:
       json_doc = json.loads(line)
+      json_doc["embedding"] = list(np.random.random(size=int(args.dim)))
       res = es.index(index=index_name, doc_type = 'book', id = int(json_doc['pid'], 16), body = json_doc)
 
 if __name__ == "__main__":
   parser = argparse.ArgumentParser(description='Specify arguments')
   parser.add_argument('--input',help='path to input file to generate indexable documents from',required=True)
   parser.add_argument('--url', help='path to the output file which will contain the json documents', required=False)
+  parser.add_argument('--dim', help='dimensionality of the embedding vector', required=False)
   args = parser.parse_args()
   main(args)
