@@ -8,9 +8,13 @@ Simple indexer for indexing json documents in elasticsearch
 An example of a simple query is
 
 {
+  "fields": ["codes", "pid"],
   "query": {
     "term": {
       "codes": "5770"
+    },
+    "term": {
+      "codes": "3091"
     }
   }
 }
@@ -58,7 +62,6 @@ def main(args):
 if __name__ == "__main__":
   parser = argparse.ArgumentParser(description='Specify arguments')
   parser.add_argument('--input',help='path to input file to generate indexable documents from',required=True)
-  parser.add_argument('--url', help='path to the output file which will contain the json documents', required=False)
   parser.add_argument('--dim', help='dimensionality of the embedding vector', required=False)
   args = parser.parse_args()
   main(args)
