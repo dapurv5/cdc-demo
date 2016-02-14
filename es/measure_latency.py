@@ -45,15 +45,16 @@ def main(args):
   for dim in range(5, int(args.max_dim), int(args.step_dim)):
     total_time = 0
     cnt = 0
-    for i in range(1,10):
+    for i in range(1,5):
       time.sleep(1)
       query = make_query(np.random.choice(diagnostic_codes, size_of_query, replace=False), dim)
-      res = es.search(index=index_name, body = query)
+      res = es.search(index=index_name, body = query, request_timeout=60)
       time_taken = int(res['took'])
       num_results = res['hits']['total']
       if num_results > 0:
         total_time = time_taken + total_time
         cnt = cnt + 1
+    print "dim=", dim, " total_time = ", total_time, " cnt = ", cnt, " avg = ", float(total_time)/float(cnt)
     latency.append(float(total_time)/float(cnt))
     dimensionality.append(dim)
   plot(dimensionality, latency, 'dimensionality', 'latency in milliseconds')
