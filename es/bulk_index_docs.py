@@ -22,22 +22,30 @@ An example of a simple query is
 
 import argparse
 import json
-import numpy as np
 
-from elasticsearch import Elasticsearch
+from pyelasticsearch import ElasticSearch
+from pyelasticsearch import bulk_chunks
 
-def main(args):
-  index_name = 'psim'
-  es = Elasticsearch()
+class Indexer(object):
   
-  # Delete index if already found one
-  try:
-    es.indices.delete(index = index_name)
-  except Exception:
-    pass
+  def __init__(self, input):
+    self.input = input
+    self.es = ElasticSearch()
+    self.index_name = "psim"
+    self.doc_type = 'book'
+    
+  def delete_index(self):
+    # Delete index if already found one
+    try:
+      self.es.delete_index(index = self.index_name)
+    except Exception:
+      pass
   
-  # Setup fresh index and mapping
-  es.indices.create(index=index_name, body = {
+  def create_index(self):
+    self.es.create_index(index=self.index_name, settings = self.get_index_settings())
+    
+  def get_index_settings(self):
+    settings = {
                         "mappings": {
                            "book": {
                              "_all" : {"enabled" : "false"},       
@@ -51,17 +59,28 @@ def main(args):
                              }     
                            }
                         }
-                     })
-     
-  with open(args.input) as input_file:
-    for line in input_file:
-      json_doc = json.loads(line)
-      json_doc["embedding"] = list(np.random.random(size=int(args.dim)))
-      res = es.index(index=index_name, doc_type = 'book', id = int(json_doc['pid'], 16), body = json_doc)
+               }
+    return settings
+  
+  def documents(self):
+    with open(self.input) as input_file:
+      for line in input_file:
+        json_doc = json.loads(line)
+        yield self.es.index_op(json_doc, doc_type=self.doc_type)
+    
+  def index(self):
+    self.delete_index()
+    self.create_index()
+    for chunk in bulk_chunks(self.documents(), docs_per_chunk=1000):
+      self.es.bulk(chunk, index = self.index_name, doc_type = self.doc_type)
+
+
+def main(args):
+  indexer = Indexer(args.input)
+  indexer.index()
 
 if __name__ == "__main__":
   parser = argparse.ArgumentParser(description='Specify arguments')
   parser.add_argument('--input',help='path to input file to generate indexable documents from',required=True)
-  parser.add_argument('--dim', help='dimensionality of the embedding vector', required=False)
   args = parser.parse_args()
   main(args)

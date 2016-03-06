@@ -1,6 +1,8 @@
 #!/usr/bin/env/python
 
 """
+Takes in the codes and the embeddings file and produces
+products of every pair of codes
 """
 import argparse
 import numpy as np
@@ -20,15 +22,17 @@ def main(args):
   with open(args.embeddings) as embeddings_file:
     for line in embeddings_file:
       line = line.strip("\n")
-      code = code_map[line.split(":")[0]]
+      code_index = code_map[line.split(":")[0]]
       code_embedding = line.split(":")[1].split(",")
       code_embedding = np.array([float(x) for x in code_embedding])
-      embedding_map[code] = code_embedding
+      embedding_map[code_index] = code_embedding
   print len(embedding_map)
 
+  codes = code_map.keys()
+  codes = sorted(codes)
   with open(args.output, 'wb') as output_file:
-    for code1 in code_map.keys():
-      for code2 in code_map.keys():
+    for code1 in codes:
+      for code2 in codes:
         product = np.dot(embedding_map[code_map[code1]], embedding_map[code_map[code2]])
         line = str(code_map[code1]) + "," + str(code_map[code2]) + "," + str(product)
         output_file.write(line + "\n")
