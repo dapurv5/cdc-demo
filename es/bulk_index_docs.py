@@ -73,6 +73,7 @@ class Indexer(object):
     self.create_index()
     for chunk in bulk_chunks(self.documents(), docs_per_chunk=1000):
       self.es.bulk(chunk, index = self.index_name, doc_type = self.doc_type)
+    self.es.refresh(self.index_name)
 
 
 def main(args):
