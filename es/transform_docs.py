@@ -47,10 +47,14 @@ def main(args):
         avg = np.zeros(dim)
         count_codes = 0
         for code in sentence:
+          if code == '':
+            continue
           code_index = code_map[code]
           count_codes += 1
           avg = avg + embedding_map[code_index]
-        avg = avg/count_codes
+
+        if count_codes != 0:
+          avg = avg/count_codes
         json_doc["embedding"] = list(avg)
         
         #compute the magnitude of the document vector

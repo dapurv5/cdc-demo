@@ -55,7 +55,8 @@ class Indexer(object):
                                          "store": "true"},
                                 "pid" : {"type" : "string"},
                                 "embedding": {"type": "float",
-                                              "store": "true"}
+                                              "store": "true"},
+                                "magnitude": {"type": "float", "store": "true"}
                              }     
                            }
                         }
